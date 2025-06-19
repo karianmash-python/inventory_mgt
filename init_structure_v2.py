@@ -1,22 +1,44 @@
 import os
 from pathlib import Path
 
-# Feature-based project structure
+# Enhanced feature-based project structure
 project_structure = {
     "alembic": ["env.py", "script.py.mako", "versions/"],
     "src": {
         "features": {
-            "item": {
-                "api": ["__init__.py", "routes.py"],
-                "models": ["__init__.py", "item.py"],
-                "schemas": ["__init__.py", "item.py"],
-                "services": ["__init__.py", "item_service.py"],
-                "tests": ["__init__.py", "test_item_service.py", "test_routes.py"],
-                "__files__": [],
+            "inventory": {
+                "api": ["__init__.py", "router.py"],
+                "models": ["__init__.py", "product.py"],
+                "schemas": ["__init__.py", "product_schema.py"],
+                "services": ["__init__.py", "inventory_service.py"],
+                "repository": ["__init__.py", "inventory_repo.py"],
+                "tests": ["__init__.py", "test_service.py", "test_router.py"],
             },
-            # Add more features like "user", "order" here
+            "warehouse": {
+                "api": ["__init__.py", "router.py"],
+                "models": ["__init__.py", "warehouse.py"],
+                "schemas": ["__init__.py", "warehouse_schema.py"],
+                "services": ["__init__.py", "warehouse_service.py"],
+                "repository": ["__init__.py", "warehouse_repo.py"],
+                "tests": ["__init__.py"],
+            },
+            "stock": {
+                "api": ["__init__.py", "router.py"],
+                "models": ["__init__.py", "stock.py"],
+                "schemas": ["__init__.py", "stock_schema.py"],
+                "services": ["__init__.py", "stock_service.py"],
+                "repository": ["__init__.py", "stock_repo.py"],
+                "tests": ["__init__.py"],
+            },
         },
-        "core": ["__init__.py", "config.py", "database.py", "logging.py"],
+        "core": [
+            "__init__.py",
+            "config.py",
+            "database.py",
+            "logging.py",
+            "security.py",
+        ],
+        "utils": ["__init__.py", "exceptions.py", "helpers.py"],
         "__files__": ["main.py", "dependencies.py", "middleware.py", "__init__.py"],
     },
     "tests": {
@@ -57,4 +79,4 @@ def create_structure(base_path: Path, structure):
 if __name__ == "__main__":
     base_dir = Path(".")
     create_structure(base_dir, project_structure)
-    print("Feature-based project structure created successfully.")
+    print("✅ Feature-based FastAPI inventory structure created successfully.")
