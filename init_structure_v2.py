@@ -34,7 +34,7 @@ project_structure = {
         "core": [
             "__init__.py",
             "config.py",
-            "database.py",
+            "config.py",
             "logging.py",
             "security.py",
         ],

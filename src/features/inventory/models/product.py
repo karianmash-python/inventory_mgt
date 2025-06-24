@@ -1,11 +1,11 @@
 from sqlalchemy import Column, Integer, String, Boolean
-from src.core.database import Base  # Adjust if your Base is elsewhere
+
+from src.core.database.base_audit import AuditBase
 
 
-class Product(Base):
+class Product(AuditBase):
     __tablename__ = "products"
 
-    id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     sku = Column(String, unique=True, nullable=False)
     description = Column(String)

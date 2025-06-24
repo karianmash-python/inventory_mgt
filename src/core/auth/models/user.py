@@ -1,15 +1,14 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from src.core.database import Base
+
+from src.core.database.base_audit import AuditBase
 
 
-class User(Base):
-    __tablename__ = "users"
+class User(AuditBase):
+    __tablename__ = "users"  # Optionally, explicit is better if your naming differs
 
-    id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
     last_login = Column(DateTime, nullable=True)

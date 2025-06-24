@@ -9,7 +9,7 @@ project_structure = {
             "endpoints": ["__init__.py", "items.py"],
             "__files__": ["__init__.py", "dependencies.py", "middleware.py"],
         },
-        "core": ["__init__.py", "config.py", "database.py", "logging.py"],
+        "core": ["__init__.py", "config.py", "config.py", "logging.py"],
         "models": ["__init__.py", "item.py"],
         "schemas": ["__init__.py", "item.py"],
         "services": ["__init__.py", "item_service.py"],
