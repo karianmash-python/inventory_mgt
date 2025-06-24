@@ -1,0 +1,13 @@
+from sqlalchemy import Column, Integer, String, Boolean
+from src.core.database import Base  # Adjust if your Base is elsewhere
+
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    sku = Column(String, unique=True, nullable=False)
+    description = Column(String)
+    unit = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
