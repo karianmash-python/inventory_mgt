@@ -1,43 +1,25 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
+from src.features.auth.schemas.token import RefreshToken, LoginResponse
+from src.dependencies import get_db
+from src.core.security.user_helper import get_current_user
 from src.features.auth.schemas.user_schema import (
     UserCreate, UserOut, PasswordReset, PasswordResetConfirm, UserLogin
 )
-from src.features.auth.schemas.token import TokenResponse, RefreshToken
 from src.features.auth.service.auth_services import (
     create_user, authenticate_user, create_user_tokens,
     refresh_access_token, request_password_reset,
-    reset_password, verify_token
+    reset_password
 )
-from src.features.auth.models.user import User  # Needed for ORM query
-from src.dependencies import get_db
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
-
-
-# Get current user dependency
-async def get_current_user(
-        token: str = Depends(oauth2_scheme),
-        db: Session = Depends(get_db)
-) -> UserOut:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
-    email = verify_token(token)
-    if not email:
-        raise credentials_exception
-
-    user = db.query(User).filter(User.email == email).first()
-    if not user:
-        raise credentials_exception
-
-    return UserOut.from_orm(user)
 
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
@@ -45,19 +27,28 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     return create_user(db, user)
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=LoginResponse)
 def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(db, UserLogin(email=form_data.username, password=form_data.password))
+    user = authenticate_user(db, UserLogin(email=EmailStr(form_data.username), password=form_data.password))
+    logger.info("User logged in: email=%s id=%s", user.email, user.id)
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return create_user_tokens(user)
+    tokens = create_user_tokens(user)
+
+    return {
+        "access_token": tokens["access_token"],
+        "refresh_token": tokens["refresh_token"],
+        "token_type": tokens["token_type"],
+        "user": UserOut.from_orm(user)
+    }
 
 
-@router.post("/refresh", response_model=TokenResponse)
+@router.post("/refresh", response_model=LoginResponse)
 def refresh(refresh_token: RefreshToken, db: Session = Depends(get_db)):
     return refresh_access_token(db, refresh_token.refresh_token)
 
@@ -82,4 +73,5 @@ def confirm_reset(reset_confirm: PasswordResetConfirm, db: Session = Depends(get
 
 @router.get("/me", response_model=UserOut)
 def read_users_me(current_user: UserOut = Depends(get_current_user)):
+    logger.info("Current user: %s", current_user)
     return current_user
