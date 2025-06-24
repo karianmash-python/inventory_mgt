@@ -1,6 +1,8 @@
 from typing import Optional
 from pydantic import BaseModel
 
+from src.features.auth.schemas.user_schema import UserOut
+
 
 class TokenData(BaseModel):
     email: Optional[str] = None
@@ -14,3 +16,6 @@ class TokenResponse(BaseModel):
 
 class RefreshToken(BaseModel):
     refresh_token: str
+
+class LoginResponse(TokenResponse):
+    user: UserOut
