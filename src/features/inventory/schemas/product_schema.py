@@ -1,4 +1,6 @@
+from uuid import UUID
 from pydantic import BaseModel, Field
+from datetime import datetime
 
 
 class ProductBase(BaseModel):
@@ -13,8 +15,10 @@ class ProductCreate(ProductBase):
 
 
 class ProductOut(ProductBase):
-    id: int
+    id: UUID  # Changed from int to UUID
     is_active: bool
+    created_at: datetime
+    updated_at: datetime | None = None
 
     class Config:
         orm_mode = True
