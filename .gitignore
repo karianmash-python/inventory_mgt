@@ -1,2 +1,19 @@
-logs/
+# Ignore Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
 venv/
+
+# Logs
+logs/
+*.log
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# OS-specific
+.DS_Store
+Thumbs.db
