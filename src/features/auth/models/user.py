@@ -1,4 +1,3 @@
-from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 
 from src.core.database.base_audit import AuditBase

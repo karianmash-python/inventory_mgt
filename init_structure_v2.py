@@ -7,7 +7,7 @@ project_structure = {
     "src": {
         "features": {
             "inventory": {
-                "api": ["__init__.py", "router.py"],
+                "api": ["__init__.py", "inventory_router.py"],
                 "models": ["__init__.py", "product.py"],
                 "schemas": ["__init__.py", "product_schema.py"],
                 "services": ["__init__.py", "inventory_service.py"],
@@ -15,7 +15,7 @@ project_structure = {
                 "tests": ["__init__.py", "test_service.py", "test_router.py"],
             },
             "warehouse": {
-                "api": ["__init__.py", "router.py"],
+                "api": ["__init__.py", "inventory_router.py"],
                 "models": ["__init__.py", "warehouse.py"],
                 "schemas": ["__init__.py", "warehouse_schema.py"],
                 "services": ["__init__.py", "warehouse_service.py"],
@@ -23,7 +23,7 @@ project_structure = {
                 "tests": ["__init__.py"],
             },
             "stock": {
-                "api": ["__init__.py", "router.py"],
+                "api": ["__init__.py", "inventory_router.py"],
                 "models": ["__init__.py", "stock.py"],
                 "schemas": ["__init__.py", "stock_schema.py"],
                 "services": ["__init__.py", "stock_service.py"],
@@ -35,10 +35,10 @@ project_structure = {
             "__init__.py",
             "config.py",
             "config.py",
-            "logging.py",
+            "logging_config.py",
             "security.py",
         ],
-        "utils": ["__init__.py", "exceptions.py", "helpers.py"],
+        "utils": ["__init__.py", "exceptions_config.py", "helpers.py"],
         "__files__": ["main.py", "dependencies.py", "middleware.py", "__init__.py"],
     },
     "tests": {

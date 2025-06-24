@@ -1,12 +1,14 @@
 from fastapi import FastAPI
-from src.core.logging import setup_logging
+from src.core.config.logging_config import setup_logging
+from src.core.rate_limiter.handlers import init_rate_limiter
 
+# Setup logging
 setup_logging()
 
 from src.core.database.config import Base, engine
 from src.core.security.cors import configure_cors
 from src.features.auth.api.auth_router import router as auth_router
-from src.features.inventory.api.router import router as inventory_router
+from src.features.inventory.api.inventory_router import router as inventory_router
 
 # Create FastAPI app and configure settings
 app = FastAPI(
@@ -28,6 +30,9 @@ app = FastAPI(
 
 # Register CORS settings
 configure_cors(app)
+
+# Attach limiter middleware and handler
+init_rate_limiter(app)
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
