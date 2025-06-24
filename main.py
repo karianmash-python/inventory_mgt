@@ -1,4 +1,7 @@
+import uvicorn
 from fastapi import FastAPI
+
+from src.core.config.app_config import app_settings
 from src.core.config.logging_config import setup_logging
 from src.core.rate_limiter.handlers import init_rate_limiter
 
@@ -40,3 +43,6 @@ Base.metadata.create_all(bind=engine)
 # Include routers
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(inventory_router, prefix="/api/v1")
+
+if __name__ == "__main__":
+    uvicorn.run("src.main:app", host="0.0.0.0", port=app_settings.port, reload=app_settings.reload)
