@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from src.core.database.config import Base, engine
 
-from src.core.auth.api.auth_router import router as auth_router
+from src.features.auth.api.auth_router import router as auth_router
 from src.features.inventory.api.router import router as inventory_router
 
 app = FastAPI(title="Inventory API")

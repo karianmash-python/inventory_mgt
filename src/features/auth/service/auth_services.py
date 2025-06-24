@@ -3,10 +3,10 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
-from src.core.auth.models.user import User
-from src.core.auth.schemas.user_schema import UserCreate, UserLogin
-from src.core.auth.utils.security import verify_password, get_password_hash
-from src.core.auth.utils.jwt import create_access_token, create_refresh_token, verify_token
+from src.features.auth.models.user import User
+from src.features.auth.schemas.user_schema import UserCreate, UserLogin
+from src.features.auth.utils.security import verify_password, get_password_hash
+from src.features.auth.utils.jwt import create_access_token, create_refresh_token, verify_token
 
 
 def get_user_by_email(db: Session, email: str) -> Optional[User]:
