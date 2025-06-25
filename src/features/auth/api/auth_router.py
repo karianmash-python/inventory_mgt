@@ -75,7 +75,11 @@ def confirm_reset(reset_confirm: PasswordResetConfirm, db: Session = Depends(get
 
 
 @router.get("/users/{user_id}/login-history", response_model=list[LoginEventDTO])
-def get_login_history(user_id: UUID, db: Session = Depends(get_db)):
+def get_login_history(
+        user_id: UUID,
+        db: Session = Depends(get_db),
+        current_user: UserOut = Depends(get_current_user)
+):
     events = db.query(UserLoginHistory).filter(UserLoginHistory.user_id == user_id).all()
     return events
 
