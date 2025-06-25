@@ -1,5 +1,8 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional, List
+from uuid import UUID
+
+from src.features.auth.schemas.permission_schema import PermissionOut
 
 
 class RoleCreate(BaseModel):
@@ -7,8 +10,17 @@ class RoleCreate(BaseModel):
     description: Optional[str] = None
 
 
+class RoleUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+
+
+class RolePermissionAssign(BaseModel):
+    permissions: List[PermissionOut]
+
+
 class RoleOut(RoleCreate):
-    id: int
+    id: UUID
 
     class Config:
         orm_mode = True

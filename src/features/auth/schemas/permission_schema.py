@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from uuid import UUID
 
 
 class PermissionCreate(BaseModel):
@@ -7,8 +8,13 @@ class PermissionCreate(BaseModel):
     description: Optional[str] = None
 
 
+class PermissionUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+
+
 class PermissionOut(PermissionCreate):
-    id: int
+    id: UUID
 
     class Config:
         orm_mode = True
