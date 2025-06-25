@@ -31,7 +31,7 @@ def get_permission(permission_id: UUID, db: Session = Depends(get_db), current_u
     return permission_service.get_permission_service(db, permission_id)
 
 
-@router.put("/{permission_id}", response_model=PermissionOut)
+@router.patch("/{permission_id}", response_model=PermissionOut)
 def update_permission(permission_id: UUID, update_data: PermissionUpdate, db: Session = Depends(get_db),
                       current_user: User = Depends(get_current_user)):
     return permission_service.update_permission_service(db, permission_id, update_data)
