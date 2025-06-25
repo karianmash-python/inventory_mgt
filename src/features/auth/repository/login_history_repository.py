@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 
-from src.features.auth.models.login_history_model import UserLoginHistory
-from src.features.auth.models.user_model import User
+from src.features.auth.models import UserLoginHistory
+from src.features.auth.models import User
 
 
 def record_login_event(db: Session, user: User):

@@ -10,7 +10,9 @@ setup_logging()
 
 from src.core.database.config import Base, engine
 from src.core.security.cors import configure_cors
-from src.features.auth.api.auth_router import router as auth_router
+
+# Import routers
+from src.features.auth.api import router as auth_router  # Authentication, Authorization, and User Management
 from src.features.inventory.api.inventory_router import router as inventory_router
 
 # Create FastAPI app and configure settings
