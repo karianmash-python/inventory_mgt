@@ -6,7 +6,7 @@ from src.dependencies import get_db
 from src.features.inventory.schemas.product_schema import ProductCreate, ProductOut
 from src.features.inventory.services import inventory_service
 from src.core.security.user_helper import get_current_user
-from src.features.auth.models.user import User
+from src.features.auth.models.user_model import User
 
 router = APIRouter(prefix="/products", tags=["Inventory"])
 

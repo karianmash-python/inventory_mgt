@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, String, Boolean, DateTime
 
 from src.core.database.base_audit import AuditBase
 

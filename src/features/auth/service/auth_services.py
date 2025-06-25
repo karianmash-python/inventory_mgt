@@ -3,7 +3,8 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
-from src.features.auth.models.user import User
+from src.features.auth.models.user_model import User
+from src.features.auth.repository.login_history_repository import record_login_event
 from src.features.auth.schemas.user_schema import UserCreate, UserLogin
 from src.core.security.security import verify_password, get_password_hash
 from src.core.security.jwt import create_access_token, create_refresh_token, verify_token
@@ -47,6 +48,8 @@ def authenticate_user(db: Session, user: UserLogin) -> Optional[User]:
 
     # Update last login
     db_user.last_login = datetime.now(timezone.utc)
+
+    record_login_event(db, db_user)
     db.commit()
 
     return db_user

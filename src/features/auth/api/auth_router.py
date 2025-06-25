@@ -1,17 +1,20 @@
 import logging
 
+from src.features.auth.models.login_history_model import UserLoginHistory
+
 logger = logging.getLogger(__name__)
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
+from uuid import UUID
 
 from src.features.auth.schemas.token import RefreshToken, LoginResponse
 from src.dependencies import get_db
 from src.core.security.user_helper import get_current_user
 from src.features.auth.schemas.user_schema import (
-    UserCreate, UserOut, PasswordReset, PasswordResetConfirm, UserLogin
+    UserCreate, UserOut, PasswordReset, PasswordResetConfirm, UserLogin, LoginEventDTO
 )
 from src.features.auth.service.auth_services import (
     create_user, authenticate_user, create_user_tokens,
@@ -69,6 +72,12 @@ def confirm_reset(reset_confirm: PasswordResetConfirm, db: Session = Depends(get
 
     reset_password(db, reset_confirm.token, reset_confirm.new_password)
     return {"message": "Password has been reset successfully"}
+
+
+@router.get("/users/{user_id}/login-history", response_model=list[LoginEventDTO])
+def get_login_history(user_id: UUID, db: Session = Depends(get_db)):
+    events = db.query(UserLoginHistory).filter(UserLoginHistory.user_id == user_id).all()
+    return events
 
 
 @router.get("/me", response_model=UserOut)

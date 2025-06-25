@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
+from uuid import UUID
 
 
 class UserBase(BaseModel):
@@ -21,6 +22,15 @@ class UserOut(UserBase):
     is_active: bool
     created_at: datetime
     last_login: Optional[datetime]
+
+    class Config:
+        orm_mode = True
+
+
+class LoginEventDTO(BaseModel):
+    id: UUID
+    user_id: UUID
+    login_time: datetime
 
     class Config:
         orm_mode = True
