@@ -1,5 +1,6 @@
 import logging
 
+from src.core.logging.service.activity_logger import log_activity
 from src.features.auth.models.login_history_model import UserLoginHistory
 
 logger = logging.getLogger(__name__)
@@ -81,6 +82,8 @@ def get_login_history(
         current_user: UserOut = Depends(get_current_user)
 ):
     events = db.query(UserLoginHistory).filter(UserLoginHistory.user_id == user_id).all()
+
+    log_activity(db, current_user.id, "VIEW_LOGIN_HISTORY", "USER", current_user.id)
     return events
 
 

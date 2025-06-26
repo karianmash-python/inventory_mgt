@@ -18,7 +18,7 @@ class UserLogin(UserBase):
 
 
 class UserOut(UserBase):
-    id: int
+    id: UUID
     is_active: bool
     created_at: datetime
     last_login: Optional[datetime]
