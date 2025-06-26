@@ -53,6 +53,6 @@ def create_structure(base_path: Path, structure):
 
 
 if __name__ == "__main__":
-    base_dir = Path(".")
+    base_dir = Path("..")
     create_structure(base_dir, project_structure)
     print("Project structure created successfully.")

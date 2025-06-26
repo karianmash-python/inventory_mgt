@@ -1,6 +1,17 @@
 import logging
-from colorlog import ColoredFormatter
 import os
+import re
+from logging.handlers import TimedRotatingFileHandler
+from colorlog import ColoredFormatter
+
+
+# Custom formatter to mask sensitive fields like passwords
+class MaskingFormatter(logging.Formatter):
+    def format(self, record):
+        original = super().format(record)
+        # Mask password patterns
+        masked = re.sub(r"password=(.*?)(,|\s|$)", "password=MASKED\\2", original)
+        return masked
 
 
 def setup_logging():
@@ -29,6 +40,21 @@ def setup_logging():
     # Set the formatter to the handler
     handler.setFormatter(formatter)
 
+    # File handler with daily rotation and masking formatter
+    file_handler = TimedRotatingFileHandler(
+        filename="logs/pesira.log",  # Make sure 'logs/' directory exists
+        when="midnight",
+        interval=1,
+        backupCount=7,
+        encoding="utf-8"
+    )
+    file_handler.setLevel(log_level)
+    file_formatter = MaskingFormatter(
+        "%(asctime)s [%(levelname)s] [%(threadName)s] [%(name)s] - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    file_handler.setFormatter(file_formatter)
+
     # Get the root logger (applies globally)
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level)
@@ -36,8 +62,13 @@ def setup_logging():
     # Clear existing handlers to prevent duplicate log lines
     root_logger.handlers.clear()
 
-    # Attach the color-enabled handler
+    # Attach the color-enabled console handler and rolling file handler
     root_logger.addHandler(handler)
+    root_logger.addHandler(file_handler)
+
+    # Set module-specific logging levels (optional)
+    logging.getLogger("uvicorn").setLevel(logging.WARNING)
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
 # Set the minimum level for the handler:
 # logging.DEBUG    - Most verbose, used for development (DEBUG, INFO, WARNING, ERROR, CRITICAL)

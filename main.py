@@ -13,6 +13,7 @@ from src.core.security.cors import configure_cors
 
 # Import routers
 from src.features.auth.api import router as auth_router  # Authentication, Authorization, and User Management
+from src.features.organizations.api.organization_router import router as organization_router
 from src.features.inventory.api.inventory_router import router as inventory_router
 
 # Create FastAPI app and configure settings
@@ -44,6 +45,7 @@ Base.metadata.create_all(bind=engine)
 
 # Include routers
 app.include_router(auth_router, prefix="/api/v1")
+app.include_router(organization_router, prefix="/api/v1")
 app.include_router(inventory_router, prefix="/api/v1")
 
 if __name__ == "__main__":
