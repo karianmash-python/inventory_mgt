@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from ..schemas.product_schema import ProductCreate
-from ..repository import inventory_repo
+from ..repository import inventory_repository as inventory_repo
 
 
 def create_new_product(db: Session, product: ProductCreate):
@@ -8,4 +8,4 @@ def create_new_product(db: Session, product: ProductCreate):
 
 
 def list_all_products(db: Session):
-    return inventory_repo.get_all_products(db)
+    return inventory_repository.get_all_products(db)

@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, status, Request
 from sqlalchemy.orm import Session
 
 from src.core.rate_limiter.limiter import limiter
-from src.dependencies import get_db
+from src.core.dependencies import get_db
 from src.features.inventory.schemas.product_schema import ProductCreate, ProductOut
-from src.features.inventory.services import inventory_service
+from src.features.inventory.service import inventory_service
 from src.core.security.user_helper import get_current_user
 from src.features.auth.models.user_model import User
 

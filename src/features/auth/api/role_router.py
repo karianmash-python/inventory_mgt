@@ -6,7 +6,7 @@ from src.core.security.user_helper import get_current_user
 from src.features.auth.models.user_model import User
 from src.features.auth.schemas.role_schema import RoleCreate, RoleUpdate, RoleOut, RolePermissionAssign
 from src.features.auth.service import role_service
-from src.dependencies import get_db
+from src.core.dependencies import get_db
 
 router = APIRouter(prefix="/roles", tags=["Roles"])
 

@@ -13,12 +13,12 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from src.features.auth.schemas.token import RefreshToken, LoginResponse
-from src.dependencies import get_db
+from src.core.dependencies import get_db
 from src.core.security.user_helper import get_current_user
 from src.features.auth.schemas.user_schema import (
     UserCreate, UserOut, PasswordReset, PasswordResetConfirm, UserLogin, LoginEventDTO, RoleAssignIn
 )
-from src.features.auth.service.auth_services import (
+from src.features.auth.service.auth_service import (
     create_user, authenticate_user, create_user_tokens,
     refresh_access_token, request_password_reset,
     reset_password, assign_role_to_user, remove_role_from_user
@@ -60,6 +60,7 @@ def assign_role(payload: RoleAssignIn, db: Session = Depends(get_db)):
 
 @router.delete("/remove-role",
                summary="Remove role from user",
+               description="Remove role from user. Requires user:role:remove permission",
                dependencies=[Depends(require_permission("user:role:remove"))])
 def remove_role(payload: RoleAssignIn, db=Depends(get_db)):
     return remove_role_from_user(db, payload.user_id, payload.role_id)

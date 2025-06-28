@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 
-from src.dependencies import get_db
+from src.core.dependencies import get_db
 from src.features.organizations.schemas.organization_schema import *
 from src.features.organizations.schemas.membership_schema import *
 from src.features.organizations.service import organization_service

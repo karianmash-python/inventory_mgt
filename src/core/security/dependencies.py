@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from src.features.auth.models.user_model import User
 from src.core.security.user_helper import get_current_user
-from src.dependencies import get_db
+from src.core.dependencies import get_db
 
 
 def require_permission(permission: str) -> Callable:
