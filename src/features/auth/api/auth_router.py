@@ -1,6 +1,7 @@
 import logging
 
 from src.core.logging.service.activity_logger import log_activity
+from src.core.security.dependencies import require_permission
 from src.features.auth.models.login_history_model import UserLoginHistory
 
 logger = logging.getLogger(__name__)
@@ -15,12 +16,12 @@ from src.features.auth.schemas.token import RefreshToken, LoginResponse
 from src.dependencies import get_db
 from src.core.security.user_helper import get_current_user
 from src.features.auth.schemas.user_schema import (
-    UserCreate, UserOut, PasswordReset, PasswordResetConfirm, UserLogin, LoginEventDTO
+    UserCreate, UserOut, PasswordReset, PasswordResetConfirm, UserLogin, LoginEventDTO, RoleAssignIn
 )
 from src.features.auth.service.auth_services import (
     create_user, authenticate_user, create_user_tokens,
     refresh_access_token, request_password_reset,
-    reset_password
+    reset_password, assign_role_to_user, remove_role_from_user
 )
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -50,6 +51,18 @@ def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = 
         "token_type": tokens["token_type"],
         "user": UserOut.from_orm(user)
     }
+
+
+@router.post("/assign-role", response_model=UserOut)
+def assign_role(payload: RoleAssignIn, db: Session = Depends(get_db)):
+    return assign_role_to_user(db, payload.user_id, payload.role_id)
+
+
+@router.delete("/remove-role",
+               summary="Remove role from user",
+               dependencies=[Depends(require_permission("user:role:remove"))])
+def remove_role(payload: RoleAssignIn, db=Depends(get_db)):
+    return remove_role_from_user(db, payload.user_id, payload.role_id)
 
 
 @router.post("/refresh", response_model=LoginResponse)

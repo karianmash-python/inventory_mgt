@@ -1,7 +1,9 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from uuid import UUID
+
+from src.features.auth.schemas.role_schema import RoleOut
 
 
 class UserBase(BaseModel):
@@ -22,9 +24,15 @@ class UserOut(UserBase):
     is_active: bool
     created_at: datetime
     last_login: Optional[datetime]
+    roles: List[RoleOut]
 
     class Config:
         orm_mode = True
+
+
+class RoleAssignIn(BaseModel):
+    user_id: UUID
+    role_id: UUID
 
 
 class LoginEventDTO(BaseModel):

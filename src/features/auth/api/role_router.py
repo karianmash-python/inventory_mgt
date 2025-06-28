@@ -34,7 +34,7 @@ def get_role(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user),
 ):
-    return role_service.get_role_service(db, role_id)
+    return role_service.get_role_by_id(db, role_id)
 
 
 @router.patch("/{role_id}", response_model=RoleOut)

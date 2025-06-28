@@ -21,7 +21,7 @@ def list_roles_service(db: Session) -> list[Role]:
     return role_repository.get_roles(db)
 
 
-def get_role_service(db: Session, role_id: UUID) -> Role:
+def get_role_by_id(db: Session, role_id: UUID) -> Role:
     role = role_repository.get_role(db, role_id)
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
@@ -52,7 +52,7 @@ def delete_role_service(db: Session, role_id: UUID):
 
 
 def assign_permissions_to_role_service(db: Session, role_id: UUID, permission_ids: list[UUID]):
-    role = get_role_service(db, role_id)
+    role = get_role_by_id(db, role_id)
 
     permissions = permission_repository.get_permissions_by_ids(db, permission_ids)
     if len(permissions) != len(permission_ids):

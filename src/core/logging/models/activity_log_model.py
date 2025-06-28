@@ -2,6 +2,7 @@ from sqlalchemy import Column, String, DateTime, JSON, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
+
 from src.core.database.base_audit import AuditBase
 
 
@@ -13,6 +14,7 @@ class ActivityLog(AuditBase):
     resource_type = Column(String, nullable=False)  # e.g., 'organization', 'user'
     resource_id = Column(UUID(as_uuid=True), nullable=True)
     timestamp = Column(DateTime, default=datetime.now(timezone.utc))
-    metadata = Column(JSON, nullable=True)
+    extra_data = Column(JSON, nullable=True)
 
     user = relationship("User", backref="activity_logs")
+

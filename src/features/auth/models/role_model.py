@@ -10,9 +10,11 @@ class Role(AuditBase):
     name = Column(String(50), unique=True, nullable=False)
     description = Column(Text, nullable=True)
 
+    user_roles = relationship("UserRole", back_populates="role", cascade="all, delete-orphan")
+
     permissions = relationship(
         "Permission",
-        secondary="role_permissions",  # Matches __tablename__
+        secondary="role_permissions",
         back_populates="roles",
         lazy="selectin"
     )

@@ -2,16 +2,15 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
+from uuid import UUID
 
+from src.features.auth.models import UserRole
 from src.features.auth.models.user_model import User
 from src.features.auth.repository.login_history_repository import record_login_event
 from src.features.auth.schemas.user_schema import UserCreate, UserLogin
 from src.core.security.security import verify_password, get_password_hash
 from src.core.security.jwt import create_access_token, create_refresh_token, verify_token
-
-
-def get_user_by_email(db: Session, email: str) -> Optional[User]:
-    return db.query(User).filter(User.email == email).first()
+from src.features.auth.service.role_service import get_role_by_id
 
 
 def create_user(db: Session, user: UserCreate) -> User:
@@ -53,6 +52,46 @@ def authenticate_user(db: Session, user: UserLogin) -> Optional[User]:
     db.commit()
 
     return db_user
+
+
+def assign_role_to_user(db: Session, user_id: UUID, role_id: UUID) -> User:
+    user = get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    role = get_role_by_id(db, role_id)
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+
+    # Check if already assigned
+    if any(ur.role_id == role_id for ur in user.user_roles):
+        raise HTTPException(status_code=400, detail="Role already assigned to user")
+
+    # Create the association explicitly
+    user_role = UserRole(user_id=user_id, role_id=role_id)
+    db.add(user_role)
+    db.commit()
+    db.refresh(user)
+
+    return user
+
+
+def remove_role_from_user(db: Session, user_id: UUID, role_id: UUID):
+    user = get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    role = get_role_by_id(db, role_id)
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+
+    user_role = db.query(UserRole).filter_by(user_id=user_id, role_id=role_id).first()
+    if not user_role:
+        raise HTTPException(status_code=404, detail="Role not assigned to user")
+
+    db.delete(user_role)
+    db.commit()
+    return {"detail": f"Role '{role.name}' removed from user '{user.email}'"}
 
 
 def create_user_tokens(user: User) -> dict:
@@ -126,3 +165,11 @@ def reset_password(db: Session, token: str, new_password: str) -> bool:
     db.commit()
 
     return True
+
+
+def get_user_by_email(db: Session, email: str) -> Optional[User]:
+    return db.query(User).filter(User.email == email).first()
+
+
+def get_user_by_id(db: Session, user_id: UUID) -> Optional[User]:
+    return db.query(User).filter(User.id == user_id).first()
