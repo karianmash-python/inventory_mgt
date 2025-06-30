@@ -4,12 +4,12 @@ from sqlalchemy.orm import Session
 
 from src.features.auth.models.user_model import User
 from src.core.security.user_helper import get_current_user
-from src.core.dependencies import get_db
+from src.core.dependencies import get_db_session
 
 
 def require_permission(permission: str) -> Callable:
     def checker(
-            db: Session = Depends(get_db),
+            db: Session = Depends(get_db_session),
             current_user: User = Depends(get_current_user),
     ):
         # Flatten all permissions from the user's roles

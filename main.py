@@ -8,6 +8,9 @@ from src.core.rate_limiter.handlers import init_rate_limiter
 # Setup logging
 setup_logging()
 
+# UTM Middleware
+from src.core.middleware.utm_middleware import UtmTrackingMiddleware
+
 from src.core.database.config import Base, engine
 from src.core.security.cors import configure_cors
 
@@ -36,6 +39,9 @@ app = FastAPI(
 
 # Register CORS settings
 configure_cors(app)
+
+# Register UTM tracking middleware
+app.add_middleware(UtmTrackingMiddleware)
 
 # Attach limiter middleware and handler
 init_rate_limiter(app)

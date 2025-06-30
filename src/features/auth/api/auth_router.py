@@ -13,7 +13,8 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from src.features.auth.schemas.token import RefreshToken, LoginResponse
-from src.core.dependencies import get_db
+from src.core.dependencies import get_db_session, get_utm_params
+from src.core.middleware.utm_middleware import UtmParams
 from src.core.security.user_helper import get_current_user
 from src.features.auth.schemas.user_schema import (
     UserCreate, UserOut, PasswordReset, PasswordResetConfirm, UserLogin, LoginEventDTO, RoleAssignIn
@@ -24,16 +25,37 @@ from src.features.auth.service.auth_service import (
     reset_password, assign_role_to_user, remove_role_from_user
 )
 
+from src.features.tracking.services.tracking_service import track_event
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
-def register(user: UserCreate, db: Session = Depends(get_db)):
-    return create_user(db, user)
+def register(
+    user: UserCreate,
+    db: Session = Depends(get_db_session),
+    utm_params: UtmParams = Depends(get_utm_params),
+):
+    new_user = create_user(db, user)
+    track_event(
+        db,
+        event_type="user_registration",
+        utm_params=utm_params,
+        user_id=new_user.id,
+    )
+    return new_user
 
 
 @router.post("/login", response_model=LoginResponse)
-def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
+def login(
+    db: Session = Depends(get_db_session),
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    utm_params: UtmParams = Depends(get_utm_params)
+):
+    """
+    Logs in a user and returns access and refresh tokens.
+    """
+    logger.info(f"UTM Parameters: {utm_params.__dict__}")
     user = authenticate_user(db, UserLogin(email=EmailStr(form_data.username), password=form_data.password))
     logger.info("User logged in: email=%s id=%s", user.email, user.id)
 
@@ -54,7 +76,7 @@ def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = 
 
 
 @router.post("/assign-role", response_model=UserOut)
-def assign_role(payload: RoleAssignIn, db: Session = Depends(get_db)):
+def assign_role(payload: RoleAssignIn, db: Session = Depends(get_db_session)):
     return assign_role_to_user(db, payload.user_id, payload.role_id)
 
 
@@ -62,23 +84,23 @@ def assign_role(payload: RoleAssignIn, db: Session = Depends(get_db)):
                summary="Remove role from user",
                description="Remove role from user. Requires user:role:remove permission",
                dependencies=[Depends(require_permission("user:role:remove"))])
-def remove_role(payload: RoleAssignIn, db=Depends(get_db)):
+def remove_role(payload: RoleAssignIn, db=Depends(get_db_session)):
     return remove_role_from_user(db, payload.user_id, payload.role_id)
 
 
 @router.post("/refresh", response_model=LoginResponse)
-def refresh(refresh_token: RefreshToken, db: Session = Depends(get_db)):
+def refresh(refresh_token: RefreshToken, db: Session = Depends(get_db_session)):
     return refresh_access_token(db, refresh_token.refresh_token)
 
 
 @router.post("/password-reset/request")
-def request_reset(reset_request: PasswordReset, db: Session = Depends(get_db)):
+def request_reset(reset_request: PasswordReset, db: Session = Depends(get_db_session)):
     request_password_reset(db, reset_request.email)
     return {"message": "If the email exists, a password reset link will be sent"}
 
 
 @router.post("/password-reset/confirm")
-def confirm_reset(reset_confirm: PasswordResetConfirm, db: Session = Depends(get_db)):
+def confirm_reset(reset_confirm: PasswordResetConfirm, db: Session = Depends(get_db_session)):
     if reset_confirm.new_password != reset_confirm.confirm_password:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -92,7 +114,7 @@ def confirm_reset(reset_confirm: PasswordResetConfirm, db: Session = Depends(get
 @router.get("/users/{user_id}/login-history", response_model=list[LoginEventDTO])
 def get_login_history(
         user_id: UUID,
-        db: Session = Depends(get_db),
+        db: Session = Depends(get_db_session),
         current_user: UserOut = Depends(get_current_user)
 ):
     events = db.query(UserLoginHistory).filter(UserLoginHistory.user_id == user_id).all()

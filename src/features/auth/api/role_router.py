@@ -6,7 +6,7 @@ from src.core.security.user_helper import get_current_user
 from src.features.auth.models.user_model import User
 from src.features.auth.schemas.role_schema import RoleCreate, RoleUpdate, RoleOut, RolePermissionAssign
 from src.features.auth.service import role_service
-from src.core.dependencies import get_db
+from src.core.dependencies import get_db_session
 
 router = APIRouter(prefix="/roles", tags=["Roles"])
 
@@ -14,7 +14,7 @@ router = APIRouter(prefix="/roles", tags=["Roles"])
 @router.post("/", response_model=RoleOut, status_code=status.HTTP_201_CREATED)
 def create_role(
         role: RoleCreate,
-        db: Session = Depends(get_db),
+        db: Session = Depends(get_db_session),
         current_user: User = Depends(get_current_user),
 ):
     return role_service.create_role_service(db, role)
@@ -22,7 +22,7 @@ def create_role(
 
 @router.get("/", response_model=list[RoleOut])
 def get_roles(
-        db: Session = Depends(get_db),
+        db: Session = Depends(get_db_session),
         current_user: User = Depends(get_current_user),
 ):
     return role_service.list_roles_service(db)
@@ -31,7 +31,7 @@ def get_roles(
 @router.get("/{role_id}", response_model=RoleOut)
 def get_role(
         role_id: UUID,
-        db: Session = Depends(get_db),
+        db: Session = Depends(get_db_session),
         current_user: User = Depends(get_current_user),
 ):
     return role_service.get_role_by_id(db, role_id)
@@ -41,7 +41,7 @@ def get_role(
 def update_role(
         role_id: UUID,
         update_data: RoleUpdate,
-        db: Session = Depends(get_db),
+        db: Session = Depends(get_db_session),
         current_user: User = Depends(get_current_user),
 ):
     return role_service.update_role_service(db, role_id, update_data)
@@ -50,7 +50,7 @@ def update_role(
 @router.delete("/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_role(
         role_id: UUID,
-        db: Session = Depends(get_db),
+        db: Session = Depends(get_db_session),
         current_user: User = Depends(get_current_user),
 ):
     role_service.delete_role_service(db, role_id)
@@ -60,7 +60,7 @@ def delete_role(
 def assign_permissions_to_role(
         role_id: UUID,
         data: RolePermissionAssign,
-        db: Session = Depends(get_db),
+        db: Session = Depends(get_db_session),
         current_user: User = Depends(get_current_user),
 ):
     return role_service.assign_permissions_to_role_service(db, role_id, data.permission_ids)
