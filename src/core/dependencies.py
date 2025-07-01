@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from src.core.database.config import SessionLocal
 from src.features.tracking.middleware.utm_middleware import UtmParams
-from src.services.http_client import HttpClient
+from src.core.http.http_client import HttpClient
 from src.core.config.external_api_config import external_api_settings
 
 
