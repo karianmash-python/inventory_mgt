@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from uuid import UUID
 
+from src.features.tracking.middleware.utm_middleware import UtmParams
 from src.features.tracking.models.utm_event_model import UtmEvent
-from src.core.middleware.utm_middleware import UtmParams
 
 
 def track_event(

@@ -3,6 +3,7 @@ import logging
 from src.core.logging.service.activity_logger import log_activity
 from src.core.security.dependencies import require_permission
 from src.features.auth.models.login_history_model import UserLoginHistory
+from src.features.tracking.middleware.utm_middleware import UtmParams
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +15,6 @@ from uuid import UUID
 
 from src.features.auth.schemas.token import RefreshToken, LoginResponse
 from src.core.dependencies import get_db_session, get_utm_params
-from src.core.middleware.utm_middleware import UtmParams
 from src.core.security.user_helper import get_current_user
 from src.features.auth.schemas.user_schema import (
     UserCreate, UserOut, PasswordReset, PasswordResetConfirm, UserLogin, LoginEventDTO, RoleAssignIn
@@ -32,9 +32,9 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(
-    user: UserCreate,
-    db: Session = Depends(get_db_session),
-    utm_params: UtmParams = Depends(get_utm_params),
+        user: UserCreate,
+        db: Session = Depends(get_db_session),
+        utm_params: UtmParams = Depends(get_utm_params),
 ):
     new_user = create_user(db, user)
     track_event(
@@ -43,20 +43,22 @@ def register(
         utm_params=utm_params,
         user_id=new_user.id,
     )
+
+    logger.info(f"UTM Parameters: {utm_params.__dict__}")
     return new_user
 
 
 @router.post("/login", response_model=LoginResponse)
 def login(
-    db: Session = Depends(get_db_session),
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    utm_params: UtmParams = Depends(get_utm_params)
+        login_request: UserLogin,
+        db: Session = Depends(get_db_session),
+        utm_params: UtmParams = Depends(get_utm_params)
 ):
     """
     Logs in a user and returns access and refresh tokens.
     """
     logger.info(f"UTM Parameters: {utm_params.__dict__}")
-    user = authenticate_user(db, UserLogin(email=EmailStr(form_data.username), password=form_data.password))
+    user = authenticate_user(db, login_request)
     logger.info("User logged in: email=%s id=%s", user.email, user.id)
 
     if not user:

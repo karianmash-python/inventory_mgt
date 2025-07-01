@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
 from uuid import UUID
 
-from src.features.auth.models import UserRole
+from src.features.auth.models import UserRoles
 from src.features.auth.models.user_model import User
 from src.features.auth.repository.login_history_repository import record_login_event
 from src.features.auth.schemas.user_schema import UserCreate, UserLogin
@@ -34,7 +34,15 @@ def create_user(db: Session, user: UserCreate) -> User:
 
     db.add(db_user)
     db.commit()
-    db.refresh(db_user)
+
+    # ✅ Reload the user with roles loaded as a list
+    db_user = (
+        db.query(User)
+        .options(joinedload(User.roles))
+        .filter(User.id == db_user.id)
+        .first()
+    )
+    db_user.roles = list(db_user.roles)
     return db_user
 
 
@@ -68,7 +76,7 @@ def assign_role_to_user(db: Session, user_id: UUID, role_id: UUID) -> User:
         raise HTTPException(status_code=400, detail="Role already assigned to user")
 
     # Create the association explicitly
-    user_role = UserRole(user_id=user_id, role_id=role_id)
+    user_role = UserRoles(user_id=user_id, role_id=role_id)
     db.add(user_role)
     db.commit()
     db.refresh(user)
@@ -85,7 +93,7 @@ def remove_role_from_user(db: Session, user_id: UUID, role_id: UUID):
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
 
-    user_role = db.query(UserRole).filter_by(user_id=user_id, role_id=role_id).first()
+    user_role = db.query(UserRoles).filter_by(user_id=user_id, role_id=role_id).first()
     if not user_role:
         raise HTTPException(status_code=404, detail="Role not assigned to user")
 

@@ -1,8 +1,8 @@
 from sqlalchemy import Column, String, Boolean, DateTime
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
 
 from src.core.database.base_audit import AuditBase
+from src.features.auth.models.user_role_model import UserRoles
 
 
 class User(AuditBase):
@@ -14,5 +14,4 @@ class User(AuditBase):
     is_superuser = Column(Boolean, default=False)
     last_login = Column(DateTime, nullable=True)
 
-    user_roles = relationship("UserRole", back_populates="user", cascade="all, delete-orphan")
-    roles = association_proxy("user_roles", "role")
+    roles = relationship("Role", secondary=UserRoles, back_populates="users", lazy="selectin")
