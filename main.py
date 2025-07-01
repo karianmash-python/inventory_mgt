@@ -9,7 +9,7 @@ from src.core.rate_limiter.handlers import init_rate_limiter
 setup_logging()
 
 # UTM Middleware
-from src.core.middleware.utm_middleware import UtmTrackingMiddleware
+from src.features.tracking.middleware.utm_middleware import UtmTrackingMiddleware
 
 from src.core.database.config import Base, engine
 from src.core.security.cors import configure_cors
